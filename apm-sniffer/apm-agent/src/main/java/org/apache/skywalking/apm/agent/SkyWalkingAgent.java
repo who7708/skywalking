@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.agent;
 
-import java.lang.instrument.Instrumentation;
-import java.util.List;
-
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.description.NamedElement;
@@ -46,6 +43,9 @@ import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrument
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.CacheableTransformerDecorator;
 import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
 
+import java.lang.instrument.Instrumentation;
+import java.util.List;
+
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
 import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
 import static net.bytebuddy.matcher.ElementMatchers.not;
@@ -60,6 +60,12 @@ public class SkyWalkingAgent {
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
+        try {
+            // debug 需要暂停, 方便启动时 debug
+            Thread.sleep(5000);
+        } catch (Exception ignore) {
+        }
+        LogManager.getLogger(SkyWalkingAgent.class).error("开始启动 SkyWalking Agent...");
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
@@ -121,10 +127,10 @@ public class SkyWalkingAgent {
         }
 
         agentBuilder.type(pluginFinder.buildMatch())
-                    .transform(new Transformer(pluginFinder))
-                    .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-                    .with(new Listener())
-                    .installOn(instrumentation);
+                .transform(new Transformer(pluginFinder))
+                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                .with(new Listener())
+                .installOn(instrumentation);
 
         try {
             ServiceManager.INSTANCE.boot();
