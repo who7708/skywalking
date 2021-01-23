@@ -17,19 +17,27 @@
 version: '3.5'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ES_TAG}
-    container_name: elasticsearch
+    image: elasticsearch:${ES_TAG}
+    container_name: ${TAG}
     restart: always
     ports:
       - 9200:9200
+      - 9300:9300
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     environment:
       discovery.type: single-node
+      TZ: Asia/Shanghai
     ulimits:
       memlock:
         soft: -1
         hard: -1
+    networks:
+      - my-network
   oap:
-    image: skywalking/oap:${TAG}
+    image: apache/skywalking-oap-server:${APM_VERSION}-${TAG}
     container_name: oap
     depends_on:
       - elasticsearch
@@ -39,9 +47,13 @@ services:
     ports:
       - 11800:11800
       - 12800:12800
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     environment:
       SW_STORAGE: elasticsearch
-      SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
+      SW_STORAGE_ES_CLUSTER_NODES: ${TAG}:9200
       SW_HEALTH_CHECKER: default
       SW_TELEMETRY: prometheus
     healthcheck:
@@ -50,8 +62,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - my-network
   ui:
-    image: skywalking/ui:${TAG}
+    image: apache/skywalking-ui:${APM_VERSION}
     container_name: ui
     depends_on:
       - oap
@@ -59,6 +73,15 @@ services:
       - oap
     restart: always
     ports:
-      - 8080:8080
+      - 8088:8080
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     environment:
       SW_OAP_ADDRESS: oap:12800
+    networks:
+      - my-network
+networks:
+  my-network:
+    driver: bridge

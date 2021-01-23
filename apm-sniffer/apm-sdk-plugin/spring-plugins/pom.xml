@@ -32,16 +32,16 @@
         <module>concurrent-util-4.x-plugin</module>
         <module>resttemplate-4.x-plugin</module>
         <module>mvc-annotation-4.x-plugin</module>
-        <module>spring-cloud</module>
+        <!--<module>spring-cloud</module>-->
         <module>mvc-annotation-3.x-plugin</module>
         <module>core-patch</module>
         <module>mvc-annotation-commons</module>
         <module>spring-commons</module>
         <module>mvc-annotation-5.x-plugin</module>
-        <module>spring-kafka-1.x-plugin</module>
-        <module>spring-kafka-2.x-plugin</module>
+        <!--<module>spring-kafka-1.x-plugin</module>-->
+        <!--<module>spring-kafka-2.x-plugin</module>-->
         <module>scheduled-annotation-plugin</module>
-        <module>spring-webflux-5.x-webclient-plugin</module>
+        <!--<module>spring-webflux-5.x-webclient-plugin</module>-->
     </modules>
     <packaging>pom</packaging>
 
